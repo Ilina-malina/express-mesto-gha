@@ -1,12 +1,24 @@
 const Card = require('../models/card');
 
+const {
+  NOT_FOUND,
+  BAD_REQUEST,
+  INTERNAL_ERROR,
+  SUCCESS,
+  CREATED,
+  INTERNAL_ERROR_MESSAGE,
+  BAD_REQUEST_MESSAGE,
+} = require('../responseCodes/responseCodes');
+
+const NOT_FOUND_MESSAGE = { message: 'Карточка с указанным id не найдена.' };
+
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find({}).populate('owner');
-    return res.status(200).json(cards);
+    return res.status(SUCCESS).json(cards);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
   }
 };
 
@@ -14,10 +26,10 @@ const createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
     const card = await Card.create({ name, link, owner: req.user._id });
-    return res.status(201).json(card);
+    return res.status(CREATED).json(card);
   } catch (e) {
     console.error(e);
-    return res.status(400).json({ message: 'Переданы некорректные данные при создании карточки.' });
+    return res.status(BAD_REQUEST).json(BAD_REQUEST_MESSAGE);
   }
 };
 
@@ -25,12 +37,12 @@ const deleteCard = async (req, res) => {
   try {
     const id = req.params.cardId;
     if (!id) {
-      return res.status(404).json({ message: 'Карточка с указанным id не найдена.' });
+      return res.status(NOT_FOUND).json(NOT_FOUND_MESSAGE);
     }
     Card.findByIdAndRemove(id);
-    return res.status(200).json({ message: 'Карточка удалена!' });
+    return res.status(SUCCESS).json({ message: 'Карточка удалена!' });
   } catch (err) {
-    return res.status(500).json({ message: 'Произошла ошибка' });
+    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
   }
 };
 
@@ -40,7 +52,7 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   );
-  res.status(200).json({ message: 'Лайк поставлен' });
+  res.status(SUCCESS).json({ message: 'Лайк поставлен' });
 };
 
 const dislikeCard = (req, res) => {
@@ -49,7 +61,7 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   );
-  res.status(200).json({ message: 'Лайк удален' });
+  res.status(SUCCESS).json({ message: 'Лайк удален' });
 };
 
 module.exports = {

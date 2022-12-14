@@ -5,10 +5,10 @@ const {
   SUCCESS,
   CREATED,
   INTERNAL_ERROR_MESSAGE,
+  BAD_REQUEST_MESSAGE,
 } = require('../responseCodes/responseCodes');
 
 const USER_NOT_FOUND_MESSAGE = { message: 'Пользователь не найден.' };
-const BAD_REQUEST_MESSAGE = { message: 'Переданы некорректные данные.' };
 
 const User = require('../models/user');
 
