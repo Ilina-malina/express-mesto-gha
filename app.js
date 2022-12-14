@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const NOT_FOUND = require('./responseCodes/responseCodes');
 
 const PORT = 3000;
 
@@ -15,7 +16,7 @@ app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '63934d0153e0ee39ed984496',
+    _id: '639974931b26c30fa3bf09b5',
   };
   next();
 });
@@ -24,7 +25,7 @@ app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
