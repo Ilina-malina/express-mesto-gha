@@ -26,7 +26,13 @@ const getUser = (req, res, next) => {
       next(new NotFoundError('Пользователь не найден'));
     }
     res.status(SUCCESS).json(user);
-  }).catch(next);
+  }).catch((err) => {
+    if (err.name === 'CastError') {
+      next(new NotFoundError('Пользователь не найден'));
+    } else {
+      next(err);
+    }
+  });
 };
 
 const createUser = (req, res, next) => {
