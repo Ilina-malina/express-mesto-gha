@@ -26,13 +26,7 @@ const getUser = (req, res, next) => {
       next(new NotFoundError('Пользователь не найден'));
     }
     res.status(SUCCESS).json(user);
-  }).catch((err) => {
-    if (err.name === 'BSONTypeError') {
-      next(new NotFoundError('Пользователь не найден'));
-    } else {
-      next(err);
-    }
-  });
+  }).catch(next);
 };
 
 const createUser = (req, res, next) => {

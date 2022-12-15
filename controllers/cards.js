@@ -12,14 +12,10 @@ const {
 
 const NOT_FOUND_MESSAGE = { message: 'Карточка с указанным id не найдена.' };
 
-const getCards = async (req, res) => {
-  try {
-    const cards = await Card.find({}).populate('owner');
-    return res.status(SUCCESS).json(cards);
-  } catch (err) {
-    console.error(err);
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+const getCards = (req, res, next) => {
+  Card.find({}).populate('owner').then((cards) => {
+    res.status(SUCCESS).json(cards);
+  }).catch(next);
 };
 
 const createCard = async (req, res) => {

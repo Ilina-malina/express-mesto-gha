@@ -1,8 +1,9 @@
+const { BSONTypeError } = require('bson');
 const { BadRequestError } = require('../errors/BadRequestError');
 const { NotFoundError } = require('../errors/NotFoundError');
 
 const handleErrors = ((err, req, res, next) => {
-  if (err instanceof BadRequestError) {
+  if (err instanceof BadRequestError || err instanceof BSONTypeError) {
     res.status(400).send({ message: err.message });
   }
   if (err instanceof NotFoundError) {
