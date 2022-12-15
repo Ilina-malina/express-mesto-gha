@@ -22,7 +22,7 @@ const getUser = (req, res, next) => {
     res.status(SUCCESS).json(user);
   }).catch((err) => {
     if (err.name === 'CastError') {
-      next(new NotFoundError('Пользователь не найден'));
+      next(new BadRequestError('Переданы некорректные данные'));
     } else {
       next(err);
     }

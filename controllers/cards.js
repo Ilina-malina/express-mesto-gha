@@ -33,7 +33,13 @@ const deleteCard = async (req, res, next) => {
       next(new NotFoundError('Карточка не найдена'));
     }
     res.status(SUCCESS).json({ message: 'Карточка удалена!' });
-  }).catch(next);
+  }).catch((err) => {
+    if (err.name === 'CastError') {
+      next(new BadRequestError('Переданы некорректные данные карточки'));
+    } else {
+      next(err);
+    }
+  });
 };
 
 const likeCard = (req, res, next) => {
