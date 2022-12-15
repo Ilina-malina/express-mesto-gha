@@ -50,8 +50,9 @@ const likeCard = (req, res, next) => {
   ).then((card) => {
     if (!card) {
       next(new NotFoundError('Карточка не найдена'));
+    } else {
+      res.status(SUCCESS).json({ message: 'Лайк поставлен' });
     }
-    res.status(SUCCESS).json({ message: 'Лайк поставлен' });
   }).catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError('Переданы некорректные данные'));
@@ -69,8 +70,9 @@ const dislikeCard = (req, res, next) => {
   ).then((card) => {
     if (!card) {
       next(new NotFoundError('Карточка не найдена'));
+    } else {
+      res.status(SUCCESS).json({ message: 'Лайк удален' });
     }
-    res.status(SUCCESS).json({ message: 'Лайк удален' });
   }).catch((err) => {
     if (err.name === 'CastError') {
       next(new BadRequestError('Переданы некорректные данные'));
