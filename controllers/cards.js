@@ -1,13 +1,8 @@
 const Card = require('../models/card');
 
 const {
-  NOT_FOUND,
-  BAD_REQUEST,
-  INTERNAL_ERROR,
   SUCCESS,
   CREATED,
-  INTERNAL_ERROR_MESSAGE,
-  BAD_REQUEST_MESSAGE,
 } = require('../utils/constants');
 
 const { BadRequestError } = require('../errors/BadRequestError');
@@ -60,22 +55,23 @@ const likeCard = (req, res, next) => {
   });
 };
 
-// const likeCard = (req, res) => {
-//   Card.findByIdAndUpdate(
-//     req.params.cardId,
-//     { $addToSet: { likes: req.user._id } },
-//     { new: true },
-//   );
-//   res.status(SUCCESS).json({ message: 'Лайк поставлен' });
-// };
-
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  );
-  res.status(SUCCESS).json({ message: 'Лайк удален' });
+  ).then((card) => {
+    if (!card) {
+      next(new NotFoundError('Карточка не найдена'));
+    }
+    res.status(SUCCESS).json({ message: 'Лайк удален' });
+  }).catch((err) => {
+    if (err.name === 'CastError') {
+      next(new BadRequestError('Переданы некорректные данные'));
+    } else {
+      next(err);
+    }
+  });
 };
 
 module.exports = {
