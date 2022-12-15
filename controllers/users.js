@@ -6,81 +6,87 @@ const {
   CREATED,
   INTERNAL_ERROR_MESSAGE,
   BAD_REQUEST_MESSAGE,
-} = require('../responseCodes/responseCodes');
+  NOT_FOUND_MESSAGE,
+} = require('../utils/constants');
 
-const USER_NOT_FOUND_MESSAGE = { message: 'Пользователь не найден.' };
+const { BadRequestError } = require('../errors/BadRequestError');
+const { NotFoundError } = require('../errors/NotFoundError');
 
 const User = require('../models/user');
 
-const getUsers = async (req, res) => {
-  try {
-    const users = await User.find({});
-    return res.status(SUCCESS).json(users);
-  } catch (err) {
-    console.error(err);
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+const getUsers = (req, res, next) => {
+  User.find({}).then((users) => {
+    res.status(SUCCESS).json(users);
+  }).catch(next);
 };
 
-const getUser = async (req, res) => {
-  try {
-    const id = req.params.userId;
-    const user = await User.findById(id);
-    if (user === null) {
-      return res.status(NOT_FOUND).json(USER_NOT_FOUND_MESSAGE);
+const getUser = (req, res, next) => {
+  User.findById(req.params.userId).then((user) => {
+    if (!user) {
+      next(new NotFoundError('Пользователь не найден'));
     }
-    return res.status(SUCCESS).json(user);
-  } catch (err) {
-    console.error(err);
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+    res.status(SUCCESS).json(user);
+  }).catch((err) => {
+    if (err.name === 'BSONTypeError') {
+      next(new NotFoundError('Пользователь не найден'));
+    } else {
+      next(err);
+    }
+  });
 };
 
-const createUser = async (req, res) => {
-  try {
-    if (!req.body || !req.body.name || !req.body.about) {
-      return res.status(BAD_REQUEST).json(BAD_REQUEST_MESSAGE);
+const createUser = (req, res, next) => {
+  User.create(req.body).then((user) => {
+    res.status(CREATED).send(user);
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError(err.message));
+    } else {
+      next(err);
     }
-    const user = await User.create(req.body);
-    return res.status(CREATED).json(user);
-  } catch (e) {
-    console.error(e);
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+  });
 };
 
-const updateProfile = async (req, res) => {
-  try {
-    const { body } = req;
-    if (!body.name || !body.about) {
-      return res.status(BAD_REQUEST).send(BAD_REQUEST_MESSAGE);
+const updateProfile = (req, res, next) => {
+  User.findByIdAndUpdate(req.user._id, req.body, {
+    new: true,
+    runValidators: true,
+  }).then((user) => {
+    if (!user) {
+      next(new NotFoundError('Пользователь не найден'));
     }
-    const updatedUser = await User.findByIdAndUpdate(req.user._id, body, {
-      new: true,
-      runValidators: true,
-    });
-    return res.status(SUCCESS).json(updatedUser);
-  } catch (e) {
-    console.error(e);
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+    if (!req.body.name || !req.body.about) {
+      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+    }
+    res.status(SUCCESS).json(user);
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError(err.message));
+    } else {
+      next(err);
+    }
+  });
 };
 
-const updateAvatar = async (req, res) => {
-  try {
-    const { body } = req;
-    if (!body.avatar) {
-      return res.status(BAD_REQUEST).send(BAD_REQUEST_MESSAGE);
+const updateAvatar = (req, res, next) => {
+  User.findByIdAndUpdate(req.user._id, req.body, {
+    new: true,
+    runValidators: true,
+  }).then((user) => {
+    if (!user) {
+      next(new NotFoundError('Пользователь не найден'));
     }
-    const updatedAvatar = await User.findByIdAndUpdate(req.user._id, body, {
-      new: true,
-      runValidators: true,
-    });
-    return res.status(SUCCESS).json(updatedAvatar);
-  } catch (e) {
-    console.error(e);
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+    if (!req.body.avatar) {
+      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+    }
+    res.status(SUCCESS).json(user);
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError(err.message));
+    } else {
+      next(err);
+    }
+  });
 };
 
 module.exports = {

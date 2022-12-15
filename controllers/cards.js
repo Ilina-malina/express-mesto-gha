@@ -8,7 +8,7 @@ const {
   CREATED,
   INTERNAL_ERROR_MESSAGE,
   BAD_REQUEST_MESSAGE,
-} = require('../responseCodes/responseCodes');
+} = require('../utils/constants');
 
 const NOT_FOUND_MESSAGE = { message: 'Карточка с указанным id не найдена.' };
 

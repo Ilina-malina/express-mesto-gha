@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-const NOT_FOUND = require('./responseCodes/responseCodes');
+const { NOT_FOUND, NOT_FOUND_MESSAGE } = require('./utils/constants');
+const { handleErrors } = require('./middlewares/handleErrors');
 
 const { PORT = 3000 } = process.env;
 
@@ -24,9 +25,10 @@ app.use((req, res, next) => {
 
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
+app.use(handleErrors);
 
 app.use('*', (req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
+  res.status(NOT_FOUND).send(NOT_FOUND_MESSAGE);
 });
 
 app.listen(PORT, () => {

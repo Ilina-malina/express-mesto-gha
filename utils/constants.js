@@ -6,6 +6,7 @@ const CREATED = 201;
 
 const INTERNAL_ERROR_MESSAGE = { message: 'Произошла ошибка' };
 const BAD_REQUEST_MESSAGE = { message: 'Переданы некорректные данные.' };
+const NOT_FOUND_MESSAGE = { message: 'Страница не найдена' };
 
 module.exports = {
   NOT_FOUND,
@@ -15,4 +16,5 @@ module.exports = {
   CREATED,
   INTERNAL_ERROR_MESSAGE,
   BAD_REQUEST_MESSAGE,
+  NOT_FOUND_MESSAGE,
 };
