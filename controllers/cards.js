@@ -13,8 +13,6 @@ const {
 const { BadRequestError } = require('../errors/BadRequestError');
 const { NotFoundError } = require('../errors/NotFoundError');
 
-const NOT_FOUND_MESSAGE = { message: 'Карточка с указанным id не найдена.' };
-
 const getCards = (req, res, next) => {
   Card.find({}).populate('owner').then((cards) => {
     res.status(SUCCESS).json(cards);
@@ -43,14 +41,33 @@ const deleteCard = async (req, res, next) => {
   }).catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  );
-  res.status(SUCCESS).json({ message: 'Лайк поставлен' });
+  ).then((card) => {
+    if (!card) {
+      next(new NotFoundError('Карточка не найдена'));
+    }
+    res.status(SUCCESS).json({ message: 'Лайк поставлен' });
+  }).catch((err) => {
+    if (err.name === 'CastError') {
+      next(new BadRequestError('Переданы некорректные данные'));
+    } else {
+      next(err);
+    }
+  });
 };
+
+// const likeCard = (req, res) => {
+//   Card.findByIdAndUpdate(
+//     req.params.cardId,
+//     { $addToSet: { likes: req.user._id } },
+//     { new: true },
+//   );
+//   res.status(SUCCESS).json({ message: 'Лайк поставлен' });
+// };
 
 const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(

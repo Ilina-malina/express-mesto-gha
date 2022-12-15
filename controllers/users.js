@@ -1,12 +1,6 @@
 const {
-  NOT_FOUND,
-  BAD_REQUEST,
-  INTERNAL_ERROR,
   SUCCESS,
   CREATED,
-  INTERNAL_ERROR_MESSAGE,
-  BAD_REQUEST_MESSAGE,
-  NOT_FOUND_MESSAGE,
 } = require('../utils/constants');
 
 const { BadRequestError } = require('../errors/BadRequestError');
