@@ -34,17 +34,13 @@ const createCard = (req, res, next) => {
   });
 };
 
-const deleteCard = async (req, res) => {
-  try {
-    const id = req.params.cardId;
-    if (!id) {
-      return res.status(NOT_FOUND).json(NOT_FOUND_MESSAGE);
+const deleteCard = async (req, res, next) => {
+  Card.findByIdAndRemove(req.params.cardId).then((card) => {
+    if (!card || !req.params.cardId) {
+      next(new NotFoundError('Карточка не найдена'));
     }
-    Card.findByIdAndRemove(id);
-    return res.status(SUCCESS).json({ message: 'Карточка удалена!' });
-  } catch (err) {
-    return res.status(INTERNAL_ERROR).json(INTERNAL_ERROR_MESSAGE);
-  }
+    res.status(SUCCESS).json({ message: 'Карточка удалена!' });
+  }).catch(next);
 };
 
 const likeCard = (req, res) => {
