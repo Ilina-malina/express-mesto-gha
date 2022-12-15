@@ -10,6 +10,9 @@ const {
   BAD_REQUEST_MESSAGE,
 } = require('../utils/constants');
 
+const { BadRequestError } = require('../errors/BadRequestError');
+const { NotFoundError } = require('../errors/NotFoundError');
+
 const NOT_FOUND_MESSAGE = { message: 'Карточка с указанным id не найдена.' };
 
 const getCards = (req, res, next) => {
@@ -18,15 +21,17 @@ const getCards = (req, res, next) => {
   }).catch(next);
 };
 
-const createCard = async (req, res) => {
-  try {
-    const { name, link } = req.body;
-    const card = await Card.create({ name, link, owner: req.user._id });
-    return res.status(CREATED).json(card);
-  } catch (e) {
-    console.error(e);
-    return res.status(BAD_REQUEST).json(BAD_REQUEST_MESSAGE);
-  }
+const createCard = (req, res, next) => {
+  const { name, link } = req.body;
+  Card.create({ name, link, owner: req.user._id }).then((card) => {
+    res.status(CREATED).json(card);
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError(err.message));
+    } else {
+      next(err);
+    }
+  });
 };
 
 const deleteCard = async (req, res) => {
