@@ -15,18 +15,17 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.params.userId).then((user) => {
-    if (!user) {
-      next(new NotFoundError('Пользователь не найден'));
-    }
-    res.status(SUCCESS).json(user);
-  }).catch((err) => {
-    if (err.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные'));
-    } else {
-      next(err);
-    }
-  });
+  User.findById(req.params.userId)
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then((user) => {
+      res.status(SUCCESS).json(user);
+    }).catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -42,45 +41,43 @@ const createUser = (req, res, next) => {
 };
 
 const updateProfile = (req, res, next) => {
-  User.findByIdAndUpdate(req.user._id, req.body, {
-    new: true,
-    runValidators: true,
-  }).then((user) => {
-    if (!user) {
-      next(new NotFoundError('Пользователь не найден'));
-    }
-    if (!req.body.name || !req.body.about) {
-      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-    }
-    res.status(SUCCESS).json(user);
-  }).catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError(err.message));
-    } else {
-      next(err);
-    }
-  });
+  if (!req.body.name || !req.body.about) {
+    next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+  } else {
+    User.findByIdAndUpdate(req.user._id, req.body, {
+      new: true,
+      runValidators: true,
+    }).orFail(new NotFoundError('Пользователь не найден'))
+      .then((user) => {
+        res.status(SUCCESS).json(user);
+      }).catch((err) => {
+        if (err.name === 'ValidationError') {
+          next(new BadRequestError(err.message));
+        } else {
+          next(err);
+        }
+      });
+  }
 };
 
 const updateAvatar = (req, res, next) => {
-  User.findByIdAndUpdate(req.user._id, req.body, {
-    new: true,
-    runValidators: true,
-  }).then((user) => {
-    if (!user) {
-      next(new NotFoundError('Пользователь не найден'));
-    }
-    if (!req.body.avatar) {
-      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-    }
-    res.status(SUCCESS).json(user);
-  }).catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError(err.message));
-    } else {
-      next(err);
-    }
-  });
+  if (!req.body.avatar) {
+    next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+  } else {
+    User.findByIdAndUpdate(req.user._id, req.body, {
+      new: true,
+      runValidators: true,
+    }).orFail(new NotFoundError('Пользователь не найден'))
+      .then((user) => {
+        res.status(SUCCESS).json(user);
+      }).catch((err) => {
+        if (err.name === 'ValidationError') {
+          next(new BadRequestError(err.message));
+        } else {
+          next(err);
+        }
+      });
+  }
 };
 
 module.exports = {

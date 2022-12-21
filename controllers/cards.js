@@ -28,18 +28,17 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = async (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId).then((card) => {
-    if (!card || !req.params.cardId) {
-      next(new NotFoundError('Карточка не найдена'));
-    }
-    res.status(SUCCESS).json({ message: 'Карточка удалена!' });
-  }).catch((err) => {
-    if (err.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные карточки'));
-    } else {
-      next(err);
-    }
-  });
+  Card.findByIdAndRemove(req.params.cardId)
+    .orFail(new NotFoundError('Карточка не найдена'))
+    .then(() => {
+      res.status(SUCCESS).json({ message: 'Карточка удалена!' });
+    }).catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные карточки'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const likeCard = (req, res, next) => {
@@ -47,19 +46,17 @@ const likeCard = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).then((card) => {
-    if (!card) {
-      next(new NotFoundError('Карточка не найдена'));
-    } else {
+  )
+    .orFail(new NotFoundError('Карточка не найдена'))
+    .then(() => {
       res.status(SUCCESS).json({ message: 'Лайк поставлен' });
-    }
-  }).catch((err) => {
-    if (err.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные'));
-    } else {
-      next(err);
-    }
-  });
+    }).catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const dislikeCard = (req, res, next) => {
@@ -67,19 +64,17 @@ const dislikeCard = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).then((card) => {
-    if (!card) {
-      next(new NotFoundError('Карточка не найдена'));
-    } else {
+  )
+    .orFail(new NotFoundError('Карточка не найдена'))
+    .then(() => {
       res.status(SUCCESS).json({ message: 'Лайк удален' });
-    }
-  }).catch((err) => {
-    if (err.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные'));
-    } else {
-      next(err);
-    }
-  });
+    }).catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports = {
