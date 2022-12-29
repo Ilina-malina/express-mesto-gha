@@ -1,3 +1,6 @@
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
@@ -28,16 +31,46 @@ const getUser = (req, res, next) => {
     });
 };
 
+const getMyself = (req, res, next) => {
+  const { authorization } = req.headers;
+
+  User.findOne({ authorization })
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then((user) => {
+      res.status(SUCCESS).json(user);
+    }).catch(next);
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.status(SUCCESS).send({ token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 const createUser = (req, res, next) => {
-  User.create(req.body).then((user) => {
-    res.status(CREATED).send(user);
-  }).catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError(err.message));
-    } else {
-      next(err);
-    }
-  });
+  if (!validator.isEmail(req.body.email)) {
+    next(new BadRequestError('Переданы некорректные данные'));
+  } else {
+    bcrypt.hash(req.body.password, 10).then((hash) => User.create({
+      email: req.body.email,
+      password: hash,
+    })).then((user) => {
+      res.status(CREATED).send(user);
+    }).catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(err.message));
+      } else {
+        next(err);
+      }
+    });
+  }
 };
 
 const updateProfile = (req, res, next) => {
@@ -83,7 +116,9 @@ const updateAvatar = (req, res, next) => {
 module.exports = {
   getUser,
   getUsers,
+  getMyself,
   createUser,
   updateProfile,
   updateAvatar,
+  login,
 };
