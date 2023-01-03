@@ -16,9 +16,9 @@ const auth = (req, res, next) => {
     res.status(401).send({ message: 'Необходима авторизация' });
   }
 
-  req.user = payload; // записываем пейлоуд в объект запроса
+  req.user = payload;
 
-  next(); // пропускаем запрос дальше
+  next();
 };
 
 module.exports = {

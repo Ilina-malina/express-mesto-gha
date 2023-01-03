@@ -8,7 +8,6 @@ const {
 
 const { BadRequestError } = require('../errors/BadRequestError');
 const { NotFoundError } = require('../errors/NotFoundError');
-// const { AccessDeniedError } = require('../errors/AccessDeniedError');
 const { ConflictError } = require('../errors/ConflictError');
 
 const getUsers = (req, res, next) => {
