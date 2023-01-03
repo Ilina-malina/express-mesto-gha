@@ -9,6 +9,7 @@ const {
 const { BadRequestError } = require('../errors/BadRequestError');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { ConflictError } = require('../errors/ConflictError');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 const getUsers = (req, res, next) => {
   User.find({}).then((users) => {
@@ -77,7 +78,7 @@ const login = (req, res, next) => {
         .json(token);
     })
     .catch((err) => {
-      next(new BadRequestError(err.message));
+      next(new UnauthorizedError(err.message));
     });
 };
 
