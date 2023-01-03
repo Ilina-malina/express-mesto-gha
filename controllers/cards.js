@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const User = require('../models/user');
 
 const {
   SUCCESS,
@@ -7,6 +8,7 @@ const {
 
 const { BadRequestError } = require('../errors/BadRequestError');
 const { NotFoundError } = require('../errors/NotFoundError');
+const { AccessDeniedError } = require('../errors/AccessDeniedError');
 
 const getCards = (req, res, next) => {
   Card.find({}).populate('owner').then((cards) => {
@@ -28,10 +30,21 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = async (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .orFail(new NotFoundError('Карточка не найдена'))
-    .then(() => {
-      res.status(SUCCESS).json({ message: 'Карточка удалена!' });
+    .then((card) => {
+      const { authorization } = req.headers;
+      User.findOne({ authorization })
+        .then((user) => {
+          if (!user._id === card.owner._id) {
+            next(new AccessDeniedError('Ошибка доступа'));
+          } else {
+            Card.findByIdAndRemove(req.params.cardId)
+              .then(() => {
+                res.status(SUCCESS).json({ message: 'Карточка удалена!' });
+              });
+          }
+        });
     }).catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные карточки'));

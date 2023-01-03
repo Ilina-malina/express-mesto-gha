@@ -1,15 +1,15 @@
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
-  SUCCESS,
-  CREATED,
+  SUCCESS, CREATED,
 } = require('../utils/constants');
 
 const { BadRequestError } = require('../errors/BadRequestError');
 const { NotFoundError } = require('../errors/NotFoundError');
+// const { AccessDeniedError } = require('../errors/AccessDeniedError');
+const { ConflictError } = require('../errors/ConflictError');
 
 const getUsers = (req, res, next) => {
   User.find({}).then((users) => {
@@ -32,13 +32,40 @@ const getUser = (req, res, next) => {
 };
 
 const getMyself = (req, res, next) => {
-  const { authorization } = req.headers;
-
-  User.findOne({ authorization })
+  User.findOne(req.user)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.status(SUCCESS).json(user);
     }).catch(next);
+};
+
+const createUser = (req, res, next) => {
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      name,
+      about,
+      avatar,
+      password: hash,
+    }))
+    .then((user) => res.status(CREATED).send(user))
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с таким email уже существует'));
+      }
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const login = (req, res, next) => {
@@ -47,30 +74,12 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.status(SUCCESS).send({ token });
+      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true })
+        .json(token);
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      next(new BadRequestError(err.message));
     });
-};
-
-const createUser = (req, res, next) => {
-  if (!validator.isEmail(req.body.email)) {
-    next(new BadRequestError('Переданы некорректные данные'));
-  } else {
-    bcrypt.hash(req.body.password, 10).then((hash) => User.create({
-      email: req.body.email,
-      password: hash,
-    })).then((user) => {
-      res.status(CREATED).send(user);
-    }).catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError(err.message));
-      } else {
-        next(err);
-      }
-    });
-  }
 };
 
 const updateProfile = (req, res, next) => {
@@ -117,8 +126,8 @@ module.exports = {
   getUser,
   getUsers,
   getMyself,
-  createUser,
   updateProfile,
   updateAvatar,
   login,
+  createUser,
 };
