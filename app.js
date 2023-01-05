@@ -58,7 +58,7 @@ app.use('/users', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().guid().alphanum(),
   }).unknown(true),
-  hraders: Joi.object().keys({
+  headers: Joi.object().keys({
     token: Joi.string().required(),
   }).unknown(true),
 }), usersRouter);
