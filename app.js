@@ -52,13 +52,15 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+app.use(auth);
+
 app.use('/users', celebrate({
   params: Joi.object({
     userId: Joi.string().guid(),
   }).unknown(true),
-}), auth, usersRouter);
+}), usersRouter);
 
-app.use('/cards', auth, cardsRouter);
+app.use('/cards', cardsRouter);
 app.use(errors());
 app.use(handleErrors);
 
