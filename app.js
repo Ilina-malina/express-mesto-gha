@@ -55,8 +55,11 @@ app.post('/signup', celebrate({
 app.use(auth);
 
 app.use('/users', celebrate({
-  params: Joi.object({
-    userId: Joi.string().guid(),
+  params: Joi.object().keys({
+    userId: Joi.string().guid().alphanum(),
+  }).unknown(true),
+  hraders: Joi.object().keys({
+    token: Joi.string().required(),
   }).unknown(true),
 }), usersRouter);
 
