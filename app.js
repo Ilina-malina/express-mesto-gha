@@ -46,14 +46,19 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string(),
+    avatar: Joi.string().regex(/^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 }), createUser);
 
-app.use('/users', usersRouter);
-app.use('/cards', cardsRouter);
+app.use('/users', celebrate({
+  params: Joi.object({
+    userId: Joi.string().guid(),
+  }).unknown(true),
+}), auth, usersRouter);
+
+app.use('/cards', auth, cardsRouter);
 app.use(errors());
 app.use(handleErrors);
 
