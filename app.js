@@ -63,7 +63,14 @@ app.use('/users', celebrate({
   }).unknown(true),
 }), usersRouter);
 
-app.use('/cards', cardsRouter);
+app.use('/cards', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().guid().alphanum(),
+  }).unknown(true),
+  headers: Joi.object().keys({
+    token: Joi.string().required(),
+  }).unknown(true),
+}), cardsRouter);
 app.use(errors());
 app.use(handleErrors);
 
