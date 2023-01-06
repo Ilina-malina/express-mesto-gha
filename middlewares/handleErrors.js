@@ -1,27 +1,8 @@
-const { BadRequestError } = require('../errors/BadRequestError');
-const { NotFoundError } = require('../errors/NotFoundError');
-const { AccessDeniedError } = require('../errors/AccessDeniedError');
-const { UnauthorizedError } = require('../errors/UnauthorizedError');
-const { ConflictError } = require('../errors/ConflictError');
-
 const handleErrors = ((err, req, res, next) => {
-  if (err instanceof BadRequestError) {
-    res.status(400).send({ message: err.message });
-  }
-  if (err instanceof UnauthorizedError) {
-    res.status(401).send({ message: err.message });
-  }
-  if (err instanceof NotFoundError) {
-    res.status(404).send({ message: err.message });
-  }
-  if (err instanceof AccessDeniedError) {
-    res.status(403).send({ message: err.message });
-  }
-  if (err instanceof ConflictError) {
-    res.status(409).send({ message: err.message });
-  }
-  console.error(err);
-  res.status(500).json({ message: err.message });
+  const statusCode = err.statusCode || 500;
+
+  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
+  res.status(statusCode).srnd({ message });
   next();
 });
 

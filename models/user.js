@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { default: isEmail } = require('validator/lib/isEmail');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -8,6 +9,10 @@ const userSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
     default: 'Жак-Ив Кусто',
+    validate: {
+      validator: (email) => isEmail(email),
+      message: (props) => `${props.value} is not a valid email!`,
+    },
   },
   about: {
     type: String,
@@ -35,7 +40,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });
