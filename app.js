@@ -10,6 +10,7 @@ const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { auth } = require('./middlewares/auth');
 const { handleErrors } = require('./middlewares/handleErrors');
+const { avatarRegex } = require('./utils/constants');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -45,7 +46,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/),
+    avatar: Joi.string().regex(avatarRegex),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const { default: isEmail } = require('validator/lib/isEmail');
+const { avatarRegex } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -27,7 +28,7 @@ const userSchema = new mongoose.Schema({
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(v) {
-        return /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/.test(v);
+        return avatarRegex.test(v);
       },
       message: (props) => `${props.value} is not a valid link!`,
     },

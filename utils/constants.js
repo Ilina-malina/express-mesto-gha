@@ -1,12 +1,10 @@
-const NOT_FOUND = 404;
 const SUCCESS = 200;
 const CREATED = 201;
 
-const NOT_FOUND_MESSAGE = { message: 'Страница не найдена' };
+const avatarRegex = /^((http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/;
 
 module.exports = {
-  NOT_FOUND,
   SUCCESS,
   CREATED,
-  NOT_FOUND_MESSAGE,
+  avatarRegex,
 };
