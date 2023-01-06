@@ -10,10 +10,6 @@ const userSchema = new mongoose.Schema({
     minlength: 2,
     maxlength: 30,
     default: 'Жак-Ив Кусто',
-    validate: {
-      validator: (email) => isEmail(email),
-      message: (props) => `${props.value} is not a valid email!`,
-    },
   },
   about: {
     type: String,
@@ -37,6 +33,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (email) => isEmail(email),
+      message: (props) => `${props.value} is not a valid email!`,
+    },
   },
   password: {
     type: String,

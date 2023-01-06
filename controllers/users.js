@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { AppError } = require('../utils/AppError');
 
 const {
   SUCCESS, CREATED,
@@ -14,12 +15,12 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new Error({ statusCode: 404, message: 'Пользователь не найден' }))
+    .orFail(new AppError({ statusCode: 404, message: 'Пользователь не найден' }))
     .then((user) => {
       res.status(SUCCESS).json(user);
     }).catch((err) => {
       if (err.name === 'CastError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -28,7 +29,7 @@ const getUser = (req, res, next) => {
 
 const getMyself = (req, res, next) => {
   User.findById(req.user)
-    .orFail(new Error({ statusCode: 404, message: 'Пользователь не найден' }))
+    .orFail(new AppError({ statusCode: 404, message: 'Пользователь не найден' }))
     .then((user) => {
       res.status(SUCCESS).json(user);
     }).catch(next);
@@ -58,9 +59,9 @@ const createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new Error({ statusCode: 409, message: 'Пользователь с таким email уже существует' }));
+        next(new AppError({ statusCode: 409, message: 'Пользователь с таким email уже существует' }));
       } else if (err.name === 'ValidationError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -74,10 +75,10 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true })
-        .json(token);
+        .json({ token });
     })
     .catch(() => {
-      next(new Error({ statusCode: 401, message: 'Необходима авторизация' }));
+      next(new AppError({ statusCode: 401, message: 'Необходима авторизация' }));
     });
 };
 
@@ -85,12 +86,12 @@ const updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, req.body, {
     new: true,
     runValidators: true,
-  }).orFail(new Error({ statusCode: 404, message: 'Пользователь не найден' }))
+  }).orFail(new AppError({ statusCode: 404, message: 'Пользователь не найден' }))
     .then((user) => {
       res.status(SUCCESS).json(user);
     }).catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -101,12 +102,12 @@ const updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, req.body, {
     new: true,
     runValidators: true,
-  }).orFail(new Error({ statusCode: 404, message: 'Пользователь не найден' }))
+  }).orFail(new AppError({ statusCode: 404, message: 'Пользователь не найден' }))
     .then((user) => {
       res.status(SUCCESS).json(user);
     }).catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
