@@ -10,7 +10,7 @@ const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { auth } = require('./middlewares/auth');
 const { handleErrors } = require('./middlewares/handleErrors');
-const { avatarRegex } = require('./utils/constants');
+const { linkRegex } = require('./utils/constants');
 const { AppError } = require('./utils/AppError');
 
 const limiter = rateLimit({
@@ -47,7 +47,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(avatarRegex),
+    avatar: Joi.string().regex(linkRegex),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -55,6 +55,9 @@ app.post('/signup', celebrate({
 
 app.use('/users', auth, usersRouter);
 app.use('/cards', auth, cardsRouter);
+app.get('/signout', (req, res) => {
+  res.clearCookie('jwt').send({ message: 'Выход' });
+});
 
 app.use('*', (req, res, next) => {
   next(new AppError({ statusCode: 404, message: 'Страница не найдена' }));
