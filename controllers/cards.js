@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const { AppError } = require('../utils/AppError');
 
 const {
   SUCCESS,
@@ -16,8 +17,8 @@ const createCard = (req, res, next) => {
   Card.create({ name, link, owner: req.user._id }).then((card) => {
     res.status(CREATED).json(card);
   }).catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+    if (err.name === 'ValidationAppError') {
+      next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
     } else {
       next(err);
     }
@@ -26,10 +27,10 @@ const createCard = (req, res, next) => {
 
 const deleteCard = async (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(new Error({ statusCode: 404, message: 'Карточка не найдена' }))
+    .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
-        next(new Error({ statusCode: 403, message: 'Ошибка доступа' }));
+        next(new AppError({ statusCode: 403, message: 'Ошибка доступа' }));
       } else {
         card.remove()
           .then(() => {
@@ -37,8 +38,8 @@ const deleteCard = async (req, res, next) => {
           });
       }
     }).catch((err) => {
-      if (err.name === 'CastError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+      if (err.name === 'CastAppError') {
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -51,12 +52,12 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error({ statusCode: 404, message: 'Карточка не найдена' }))
+    .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then(() => {
       res.status(SUCCESS).json({ message: 'Лайк поставлен' });
     }).catch((err) => {
-      if (err.name === 'CastError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+      if (err.name === 'CastAppError') {
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }
@@ -69,12 +70,12 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error({ statusCode: 404, message: 'Карточка не найдена' }))
+    .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then(() => {
       res.status(SUCCESS).json({ message: 'Лайк удален' });
     }).catch((err) => {
-      if (err.name === 'CastError') {
-        next(new Error({ statusCode: 400, message: 'Переданы некорректные данные' }));
+      if (err.name === 'CastAppError') {
+        next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
         next(err);
       }

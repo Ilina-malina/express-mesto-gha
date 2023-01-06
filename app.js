@@ -11,6 +11,7 @@ const cardsRouter = require('./routes/cards');
 const { auth } = require('./middlewares/auth');
 const { handleErrors } = require('./middlewares/handleErrors');
 const { avatarRegex } = require('./utils/constants');
+const { AppError } = require('./utils/AppError');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -58,7 +59,7 @@ app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
 app.use('*', (req, res, next) => {
-  next(new Error({ statusCode: 404, message: 'Страница не найдена' }));
+  next(new AppError({ statusCode: 404, message: 'Страница не найдена' }));
 });
 
 app.use(errors());
