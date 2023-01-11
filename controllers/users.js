@@ -74,8 +74,7 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true })
-        .json({ token });
+      res.send({ token });
     })
     .catch(() => {
       next(new AppError({ statusCode: 401, message: 'Необходима авторизация' }));
