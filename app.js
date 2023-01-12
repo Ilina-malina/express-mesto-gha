@@ -34,8 +34,6 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-app.use(cors(corsOptions));
-
 app.use(limiter);
 
 app.use(helmet());
@@ -76,6 +74,8 @@ app.get('/signout', (req, res) => {
 app.use('*', (req, res, next) => {
   next(new AppError({ statusCode: 404, message: 'Страница не найдена' }));
 });
+
+app.use(cors(corsOptions));
 
 app.use(errorLogger);
 app.use(errors());
