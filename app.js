@@ -29,12 +29,11 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-// const allowedCors = ['http://moe-mesto.nomoredomains.club/', 'https://moe-mesto.nomoredomains.club/', 'localhost:3000', 'http://localhost:3000'];
+// const allowedCors = ['http://moe-mesto.nomoredomains.club', 'https://moe-mesto.nomoredomains.club', 'localhost:3000', 'http://localhost:3000'];
 
 // const corsOptions = {
 //   origin: allowedCors,
 //   optionsSuccessStatus: 200,
-//   credentials: true,
 // };
 
 // app.use(cors(corsOptions));
