@@ -52,12 +52,12 @@ app.use(bodyParser.json());
 
 app.use(requestLogger);
 
-app.use((req, res, next) => {
-  res.append('Access-Control-Allow-Origin', allowedCors);
-  res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.append('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.append('Access-Control-Allow-Origin', allowedCors);
+//   res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+//   res.append('Access-Control-Allow-Headers', 'Content-Type');
+//   next();
+// });
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
