@@ -34,7 +34,7 @@ const app = express();
 //   optionsSuccessStatus: 200,
 // };
 
-app.use(corsFunction());
+app.use(corsFunction);
 
 app.use(limiter);
 
