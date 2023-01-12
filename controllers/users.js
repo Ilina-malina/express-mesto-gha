@@ -77,9 +77,10 @@ const login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ token });
+      console.log(res);
     })
-    .catch(() => {
-      next(new AppError({ statusCode: 401, message: 'Необходима авторизация' }));
+    .catch((e) => {
+      next(new AppError({ statusCode: 401, message: e }));
     });
 };
 
