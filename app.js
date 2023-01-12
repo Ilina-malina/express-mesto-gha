@@ -1,5 +1,5 @@
 const express = require('express');
-// const cors = require('cors');
+const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
@@ -10,7 +10,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { login, createUser } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-const { corsFunction } = require('./middlewares/cors');
+// const { corsFunction } = require('./middlewares/cors');
 const { auth } = require('./middlewares/auth');
 const { handleErrors } = require('./middlewares/handleErrors');
 const { linkRegex } = require('./utils/constants');
@@ -26,8 +26,15 @@ const limiter = rateLimit({
 const { PORT = 3000 } = process.env;
 
 const app = express();
-// app.use(cors());
-app.use(corsFunction);
+
+const allowedCors = ['http://moe-mesto.nomoredomains.club/', 'https://moe-mesto.nomoredomains.club/', 'localhost:3000'];
+
+const corsOptions = {
+  origin: allowedCors,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 app.use(limiter);
 
