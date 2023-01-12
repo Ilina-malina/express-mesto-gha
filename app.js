@@ -1,5 +1,7 @@
+require('dotenv').config();
+
 const express = require('express');
-const cors = require('cors');
+// const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
@@ -27,15 +29,15 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-const allowedCors = ['http://moe-mesto.nomoredomains.club/', 'https://moe-mesto.nomoredomains.club/', 'localhost:3000', 'http://localhost:3000'];
+// const allowedCors = ['http://moe-mesto.nomoredomains.club/', 'https://moe-mesto.nomoredomains.club/', 'localhost:3000', 'http://localhost:3000'];
 
-const corsOptions = {
-  origin: allowedCors,
-  optionsSuccessStatus: 200,
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: allowedCors,
+//   optionsSuccessStatus: 200,
+//   credentials: true,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 app.use(limiter);
 
@@ -50,6 +52,13 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.use(requestLogger);
+
+app.use((req, res, next) => {
+  res.append('Access-Control-Allow-Origin', ['*']);
+  res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.append('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
