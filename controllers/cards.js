@@ -54,7 +54,7 @@ const likeCard = (req, res, next) => {
   )
     .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then((card) => {
-      res.status(SUCCESS).json(card);
+      res.status(SUCCESS).json(card.populate('owner'));
     }).catch((err) => {
       if (err.name === 'CastAppError') {
         next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
@@ -72,7 +72,7 @@ const dislikeCard = (req, res, next) => {
   )
     .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then((card) => {
-      res.status(SUCCESS).json(card);
+      res.status(SUCCESS).json(card.populate('owner'));
     }).catch((err) => {
       if (err.name === 'CastAppError') {
         next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
