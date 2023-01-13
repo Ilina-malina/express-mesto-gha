@@ -12,7 +12,6 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { login, createUser } = require('./controllers/users');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
-// const { corsFunction } = require('./middlewares/cors');
 const { auth } = require('./middlewares/auth');
 const { handleErrors } = require('./middlewares/handleErrors');
 const { linkRegex } = require('./utils/constants');
@@ -29,14 +28,9 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-// const allowedCors = ['http://moe-mesto.nomoredomains.club', 'https://moe-mesto.nomoredomains.club', 'localhost:3000', 'http://localhost:3000'];
+const allowedCors = ['http://moe-mesto.nomoredomains.club', 'https://moe-mesto.nomoredomains.club', 'localhost:3000', 'http://localhost:3000'];
 
-// const corsOptions = {
-//   origin: allowedCors,
-//   optionsSuccessStatus: 200,
-// };
-
-app.use(cors());
+app.use(cors(allowedCors));
 
 app.use(limiter);
 
@@ -51,13 +45,6 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.use(requestLogger);
-
-// app.use((req, res, next) => {
-//   res.append('Access-Control-Allow-Origin', allowedCors);
-//   res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-//   res.append('Access-Control-Allow-Headers', 'Content-Type');
-//   next();
-// });
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
