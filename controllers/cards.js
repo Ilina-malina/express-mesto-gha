@@ -51,11 +51,12 @@ const likeCard = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  )
+  ).populate('owner')
     .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then((card) => {
-      res.status(SUCCESS).json(card.populate('owner'));
-    }).catch((err) => {
+      res.status(SUCCESS).json(card);
+    })
+    .catch((err) => {
       if (err.name === 'CastAppError') {
         next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
@@ -69,11 +70,12 @@ const dislikeCard = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  )
+  ).populate('owner')
     .orFail(new AppError({ statusCode: 404, message: 'Карточка не найдена' }))
     .then((card) => {
-      res.status(SUCCESS).json(card.populate('owner'));
-    }).catch((err) => {
+      res.status(SUCCESS).json(card);
+    })
+    .catch((err) => {
       if (err.name === 'CastAppError') {
         next(new AppError({ statusCode: 400, message: 'Переданы некорректные данные' }));
       } else {
