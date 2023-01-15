@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
@@ -27,6 +28,8 @@ const limiter = rateLimit({
 const { PORT = 3000 } = process.env;
 
 const app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 const allowedCors = ['http://moe-mesto.nomoredomains.club', 'https://moe-mesto.nomoredomains.club', 'localhost:3000', 'http://localhost:3000'];
 
